@@ -198,6 +198,10 @@ filtered_df = get_filtered_students(
     risk_level=selected_risk_filter
 )
 
+st.sidebar.markdown("---")
+st.sidebar.caption("⚠️ **Demo Disclaimer**: EduPulse AI uses synthetic student data (`students_1200.csv`) and a prototype ML model for hackathon demonstration. It is not validated for real-world academic decisions.")
+
+
 # --- Top Banner Header ---
 st.markdown("""
 <div class="header-banner">
@@ -607,8 +611,14 @@ elif app_mode == "📁 Student Data Explorer":
         hide_index=True
     )
     
-    # Download CSV button
-    csv_data = filtered_df.to_csv(index=False).encode('utf-8')
+    # Download CSV button (Sanitized against CSV formula injection)
+    export_df = filtered_df.copy()
+    for col in export_df.select_dtypes(include=['object', 'string']).columns:
+        export_df[col] = export_df[col].astype(str).apply(
+            lambda x: f"'{x}" if x and x[0] in ('=', '+', '-', '@') else x
+        )
+    csv_data = export_df.to_csv(index=False).encode('utf-8')
+
     st.download_button(
         label="📥 Download Filtered Student Dataset (CSV)",
         data=csv_data,

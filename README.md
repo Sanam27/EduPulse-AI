@@ -4,7 +4,10 @@
 
 EduPulse AI is an end-to-end Machine Learning powered educational analytics platform designed to help educators, academic advisors, and institutional administrators identify early signs of academic risk and deliver personalized, actionable support interventions to students.
 
+> ⚠️ **Hackathon & Prototype Disclaimer**: The dataset (`students_1200.csv`) is synthetically generated for demonstration purposes, and the trained model is a proof-of-concept prototype. It is not validated for real-world institutional or high-stakes academic decision-making.
+
 ---
+
 
 ## 🌟 Key Features
 
@@ -104,3 +107,12 @@ Open your browser and navigate to `http://localhost:8501`.
 * **Synthetic Data Base**: Current model is trained on realistic synthetic student data. Future iterations will support direct LMS database integration (e.g., Canvas, Blackboard API via OAuth).
 * **Demographic Bias Protection**: Intentionally excludes demographic attributes to prevent bias in academic risk prediction.
 * **Longitudinal Tracking**: Future releases will incorporate time-series modeling to track student metric trends across multiple semesters.
+
+---
+
+## 🔐 Production Deployment & Security Requirements
+
+Prior to deploying EduPulse AI in a live university environment with real student records:
+1. **Authentication & FERPA Authorization**: Implement Single Sign-On (OAuth 2.0 / SAML 2.0 via Azure AD or Google Workspace) and strict Role-Based Access Control (RBAC) to ensure students can access only their own metrics while advisors access assigned cohorts.
+2. **Model Deserialization Integrity**: SHA-256 checksum verification is enforced via `verify_model_integrity()` in `src/model_utils.py` prior to `joblib.load()`.
+3. **CSV Export Sanitization**: Spreadsheet formula trigger escaping (`=`, `+`, `-`, `@`) is applied to CSV downloads to prevent spreadsheet code execution.

@@ -21,14 +21,35 @@ FEATURE_NAMES_REMAPPED = {
     "stress_level": "Stress Level (1-10)"
 }
 
+def verify_model_integrity(filepath):
+    """Verify SHA-256 checksum of model artifact against trusted hash file if present."""
+    hash_path = filepath + ".sha256"
+    if not os.path.exists(hash_path):
+        return True
+    import hashlib
+    with open(hash_path, "r", encoding="utf-8") as f:
+        expected_hash = f.read().strip()
+    hasher = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        hasher.update(f.read())
+    computed_hash = hasher.hexdigest()
+    if computed_hash != expected_hash:
+        raise ValueError(
+            f"Model integrity check failed for '{filepath}'. "
+            f"Expected SHA-256 {expected_hash[:12]}..., got {computed_hash[:12]}..."
+        )
+    return True
+
 def load_model(filepath=MODEL_PATH):
-    """Load model artifact dictionary from pickle file."""
+    """Load model artifact dictionary from pickle file after verifying SHA-256 integrity."""
     if not os.path.exists(filepath):
         from train_model import train_risk_model
         return train_risk_model()
         
+    verify_model_integrity(filepath)
     artifact = joblib.load(filepath)
     return artifact
+
 
 def predict_student_risk(student_data, artifact=None):
     """

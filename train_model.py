@@ -90,7 +90,20 @@ def train_risk_model(data_path="data/students_1200.csv", model_dir="models"):
     model_path = os.path.join(model_dir, "risk_model.pkl")
     joblib.dump(artifact, model_path)
     
-    print(f"\n[SUCCESS] Model artifact successfully saved to '{model_path}'")
+    # Compute SHA-256 hash for model integrity verification
+    import hashlib
+    hasher = hashlib.sha256()
+    with open(model_path, "rb") as f:
+        hasher.update(f.read())
+    model_hash = hasher.hexdigest()
+
+    hash_path = model_path + ".sha256"
+    with open(hash_path, "w", encoding="utf-8") as f:
+        f.write(model_hash)
+
+    print(f"\n[SUCCESS] Model artifact successfully saved to '{model_path}' (SHA-256: {model_hash[:12]}...)")
+
+
 
     return artifact
 

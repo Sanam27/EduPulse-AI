@@ -45,9 +45,10 @@ def get_cohort_kpis(df):
     total_students = len(df)
     if total_students == 0:
         return {
-            "total": 0, "high_risk_pct": 0, "avg_gpa": 0, 
+            "total": 0, "high_risk_cnt": 0, "high_risk_pct": 0, "avg_gpa": 0, 
             "avg_attendance": 0, "avg_assignment": 0
         }
+
         
     high_risk_cnt = (df["risk_level"] == "High").sum()
     high_risk_pct = (high_risk_cnt / total_students) * 100
