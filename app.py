@@ -385,10 +385,21 @@ elif app_mode == "🎓 Student Risk Predictor":
                     <div style="font-size: 0.8rem; color: #9CB7A5; font-weight: 600;">Readiness Score: {placement_pred['placement_score']}/100</div>
                 </div>
             </div>
-            <div style="display: flex; justify-content: space-around; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid rgba(94, 234, 160, 0.12); font-size: 0.9rem;">
-                <div><span style="color:#EF4444; font-weight:700;">High Risk Prob:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['high_risk_prob']}%</span></div>
-                <div><span style="color:#F59E0B; font-weight:700;">Medium Risk Prob:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['medium_risk_prob']}%</span></div>
-                <div><span style="color:#10B981; font-weight:700;">Low Risk Prob:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['low_risk_prob']}%</span></div>
+            <div style="margin-top: 1.2rem; padding-top: 0.9rem; border-top: 1px solid rgba(94, 234, 160, 0.12);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.4rem;">
+                    <div style="flex: 1; padding: 0 0.5rem; text-align: left;">
+                        <span style="color:#EF4444; font-weight:700;">High Risk:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['high_risk_prob']}%</span>
+                        <div class="prob-bar-container"><div class="prob-bar-fill prob-bar-high" style="width: {pred['high_risk_prob']}%;"></div></div>
+                    </div>
+                    <div style="flex: 1; padding: 0 0.5rem; text-align: left;">
+                        <span style="color:#F59E0B; font-weight:700;">Medium Risk:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['medium_risk_prob']}%</span>
+                        <div class="prob-bar-container"><div class="prob-bar-fill prob-bar-medium" style="width: {pred['medium_risk_prob']}%;"></div></div>
+                    </div>
+                    <div style="flex: 1; padding: 0 0.5rem; text-align: left;">
+                        <span style="color:#10B981; font-weight:700;">Low Risk:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['low_risk_prob']}%</span>
+                        <div class="prob-bar-container"><div class="prob-bar-fill prob-bar-low" style="width: {pred['low_risk_prob']}%;"></div></div>
+                    </div>
+                </div>
             </div>
         </div>
         """, unsafe_allow_html=True)

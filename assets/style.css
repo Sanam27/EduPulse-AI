@@ -49,13 +49,23 @@ html, body, [class*="css"], .stApp {
 
 @keyframes pulseGlow {
     0% { opacity: 0.4; transform: scale(0.98); }
-    50% { opacity: 0.8; transform: scale(1.02); }
+    50% { opacity: 0.85; transform: scale(1.02); }
     100% { opacity: 0.4; transform: scale(0.98); }
 }
 
 @keyframes liveBlink {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+@keyframes fillProbBar {
+    from { width: 0%; }
+    to { width: var(--target-width); }
+}
+
+@keyframes dangerPulse {
+    0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+    50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
 }
 
 /* Accessibility: Reduced Motion */
@@ -175,7 +185,7 @@ html, body, [class*="css"], .stApp {
     right: -20%;
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, rgba(95, 242, 165, 0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(95, 242, 165, 0.14) 0%, transparent 70%);
     animation: pulseGlow 6s ease-in-out infinite;
     pointer-events: none;
 }
@@ -196,13 +206,6 @@ html, body, [class*="css"], .stApp {
 }
 
 /* KPI Cards Grid */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.1rem;
-    margin-bottom: 2rem;
-}
-
 .kpi-card-enhanced {
     background: linear-gradient(145deg, rgba(16, 39, 28, 0.9) 0%, rgba(11, 29, 22, 0.95) 100%);
     border: 1px solid var(--border-color);
@@ -215,9 +218,9 @@ html, body, [class*="css"], .stApp {
 }
 
 .kpi-card-enhanced:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     border-color: var(--neon-mint);
-    box-shadow: 0 14px 30px -8px rgba(95, 242, 165, 0.25);
+    box-shadow: 0 16px 32px -8px rgba(95, 242, 165, 0.3);
 }
 
 .kpi-card-enhanced::before {
@@ -226,6 +229,10 @@ html, body, [class*="css"], .stApp {
     top: 0; left: 0; right: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--secondary-accent), var(--neon-mint));
+}
+
+.kpi-card-enhanced.kpi-danger {
+    animation: dangerPulse 3s infinite ease-in-out;
 }
 
 .kpi-card-enhanced.kpi-danger::before {
@@ -283,36 +290,26 @@ html, body, [class*="css"], .stApp {
     margin-bottom: 1.5rem;
 }
 
-/* Risk Level Badges */
-.badge-risk {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0.35rem 0.9rem;
+/* Animated Progress Bars for Risk Probabilities */
+.prob-bar-container {
+    background: rgba(11, 29, 22, 0.8);
     border-radius: 9999px;
-    font-weight: 800;
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    height: 10px;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 0.3rem;
+    border: 1px solid rgba(94, 234, 160, 0.1);
 }
 
-.badge-risk-high {
-    background: rgba(239, 68, 68, 0.15);
-    color: #FCA5A5;
-    border: 1px solid rgba(239, 68, 68, 0.4);
+.prob-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.badge-risk-medium {
-    background: rgba(245, 158, 11, 0.15);
-    color: #FCD34D;
-    border: 1px solid rgba(245, 158, 11, 0.4);
-}
-
-.badge-risk-low {
-    background: rgba(16, 185, 129, 0.15);
-    color: #6EE7B7;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-}
+.prob-bar-high { background: linear-gradient(90deg, #EF4444, #F87171); }
+.prob-bar-medium { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.prob-bar-low { background: linear-gradient(90deg, #10B981, #5FF2A5); }
 
 /* Recommendation Cards */
 .rec-item-card {
@@ -364,18 +361,6 @@ html, body, [class*="css"], .stApp {
 section[data-testid="stSidebar"] {
     background-color: var(--bg-sidebar) !important;
     border-right: 1px solid var(--border-color) !important;
-}
-
-section[data-testid="stSidebar"] .stRadio label {
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-/* Table Styling */
-.stDataFrame {
-    border-radius: var(--radius-md) !important;
-    overflow: hidden !important;
-    border: 1px solid var(--border-color) !important;
 }
 
 /* Scrollbars */
