@@ -11,7 +11,7 @@ EduPulse AI is an end-to-end Machine Learning powered educational analytics plat
 | Link | Destination | Description |
 |---|---|---|
 | 🌐 **View Prototype** | [Open Prototype](https://vansh-8300.github.io/EduPulse-AI/) | Static GitHub Pages prototype |
-| 🚀 **Live Dashboard** | Deployment pending | Interactive Streamlit application |
+| 🚀 **Live Dashboard** | [Launch EduPulse AI](https://YOUR-ACTUAL-APP.streamlit.app/) | Interactive Streamlit application |
 | 💻 **View Source Code** | [GitHub Repository](https://github.com/vansh-8300/EduPulse-AI) | Project source code |
 
 > ℹ️ **Streamlit Deployment:** Deploy `app.py` through [Streamlit Community Cloud](https://share.streamlit.io/). Once deployment succeeds, replace “Deployment pending” with a link to your actual Streamlit dashboard URL.
