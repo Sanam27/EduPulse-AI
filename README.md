@@ -9,12 +9,13 @@ EduPulse AI is an end-to-end Machine Learning powered educational analytics plat
 ### 🌐 Quick Links & Access Points
 
 | Link | Destination | Description |
-| :--- | :--- | :--- |
-| 🌐 **View Prototype** | [https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/) | Static GitHub Pages presentation & feature showcase prototype |
-| 🚀 **Launch Live Dashboard** | [STREAMLIT_APP_URL_PENDING](STREAMLIT_APP_URL_PENDING) | Interactive Streamlit Community Cloud Python application |
-| 💻 **View Source Code** | [https://github.com/vansh-8300/EduPulse-AI](https://github.com/vansh-8300/EduPulse-AI) | GitHub source repository |
+|---|---|---|
+| 🌐 **View Prototype** | [Open Prototype](https://vansh-8300.github.io/EduPulse-AI/) | Static GitHub Pages prototype |
+| 🚀 **Live Dashboard** | Deployment pending | Interactive Streamlit application |
+| 💻 **View Source Code** | [GitHub Repository](https://github.com/vansh-8300/EduPulse-AI) | Project source code |
 
-> ℹ️ **Streamlit Deployment Note**: `STREAMLIT_APP_URL_PENDING` is a temporary placeholder. Once you deploy `app.py` on Streamlit Community Cloud at [https://share.streamlit.io/](https://share.streamlit.io/), replace `STREAMLIT_APP_URL_PENDING` in `README.md` and `index.html` with your live Streamlit app URL (e.g., `https://edupulse-ai.streamlit.app`).
+> ℹ️ **Streamlit Deployment:** Deploy `app.py` through [Streamlit Community Cloud](https://share.streamlit.io/). Once deployment succeeds, replace “Deployment pending” with a link to your actual Streamlit dashboard URL.
+
 
 > ⚠️ **Hackathon & Prototype Disclaimer**: The dataset (`students_1200.csv`) is synthetically generated for demonstration purposes, and the trained model is a proof-of-concept prototype. It is not validated for real-world institutional or high-stakes academic decision-making.
 
