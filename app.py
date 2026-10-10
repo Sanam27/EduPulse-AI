@@ -1,8 +1,9 @@
 """
 EduPulse AI - Student Analytics & Success Platform
-Main Streamlit Web Application
+Main Streamlit Web Application (Dark Green AI Intelligence Edition)
 """
 
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,140 +12,36 @@ import plotly.graph_objects as go
 
 from src.data_loader import load_student_data, get_filtered_students, get_cohort_kpis
 from src.model_utils import load_model, predict_student_risk, explain_student_indicators, predict_placement_risk
-
 from src.recommendations import generate_recommendations
 
-# --- Page Configuration & Custom CSS ---
+# --- Page Configuration ---
 st.set_page_config(
-    page_title="EduPulse AI | Student Analytics & Success Platform",
+    page_title="EduPulse AI | Student Intelligence Dashboard",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling (Dark theme accents, glassmorphic cards, gradient headers)
-st.markdown("""
-<style>
-    /* Main Background & Fonts */
-    .main {
-        background-color: #0f172a;
-        color: #f8fafc;
-        font-family: 'Inter', sans-serif;
-    }
+# Load Custom CSS Design System
+def load_css():
+    css_path = os.path.join(os.path.dirname(__file__), "assets", "style.css")
+    if os.path.exists(css_path):
+        with open(css_path, "r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    /* Header Gradient Banner */
-    .header-banner {
-        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
-        padding: 1.8rem 2rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        margin-bottom: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+load_css()
 
-    .header-title {
-        color: #ffffff;
-        font-size: 2.3rem;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: -0.5px;
-    }
-
-    .header-subtitle {
-        color: #c7d2fe;
-        font-size: 1.05rem;
-        margin-top: 0.4rem;
-        margin-bottom: 0;
-    }
-
-    /* KPI Card Style */
-    .kpi-card {
-        background: #1e293b;
-        padding: 1.2rem;
-        border-radius: 12px;
-        border: 1px solid #334155;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-        text-align: center;
-    }
-
-    .kpi-title {
-        color: #94a3b8;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .kpi-value {
-        color: #f8fafc;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-top: 0.3rem;
-    }
-
-    .kpi-subtext {
-        font-size: 0.8rem;
-        margin-top: 0.2rem;
-    }
-
-    /* Risk Badges */
-    .risk-high {
-        background-color: #ef4444;
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    .risk-medium {
-        background-color: #f59e0b;
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    .risk-low {
-        background-color: #10b981;
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    /* Recommendation Cards */
-    .rec-card {
-        background-color: #1e293b;
-        border-left: 5px solid #6366f1;
-        padding: 1.2rem;
-        border-radius: 8px;
-        margin-bottom: 0.9rem;
-        border: 1px solid #334155;
-    }
-
-    .rec-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .rec-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #38bdf8;
-    }
-
-    .rec-details {
-        color: #cbd5e1;
-        font-size: 0.92rem;
-        line-height: 1.4;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Helper function to apply uniform Dark Green Plotly styling
+def apply_dark_green_plotly_theme(fig):
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Plus Jakarta Sans, sans-serif', color="#F0FDF4"),
+        margin=dict(t=30, b=30, l=20, r=20),
+        xaxis=dict(gridcolor='rgba(94, 234, 160, 0.12)', zerolinecolor='rgba(94, 234, 160, 0.2)'),
+        yaxis=dict(gridcolor='rgba(94, 234, 160, 0.12)', zerolinecolor='rgba(94, 234, 160, 0.2)')
+    )
+    return fig
 
 
 # --- Load Data & Model Artifact ---
@@ -159,17 +56,28 @@ def get_cached_model():
 df = get_cached_data()
 artifact = get_cached_model()
 
-# --- Sidebar Controls & Navigation ---
-st.sidebar.image("https://img.icons8.com/isometric/96/000000/graduation-cap.png", width=60)
-st.sidebar.title("EduPulse AI Navigation")
+# Risk Palette
+RISK_COLORS = {
+    "High": "#EF4444",
+    "Medium": "#F59E0B",
+    "Low": "#10B981"
+}
+
+
+# --- Sidebar Navigation & Controls ---
+st.sidebar.image("https://img.icons8.com/isometric/96/000000/graduation-cap.png", width=55)
+st.sidebar.title("EduPulse AI")
+st.sidebar.markdown("<div style='font-size:0.82rem; color:#9CB7A5; margin-top:-10px; margin-bottom:15px; font-weight:600;'>Student Intelligence Platform</div>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
 app_mode = st.sidebar.radio(
-    "Select Portal View:",
+    "Navigation Mode:",
     [
-        "📊 Cohort Analytics Overview",
-        "🎓 Student Risk Predictor & Deep-Dive",
-        "🔮 Interactive What-If Simulator",
+        "📊 Dashboard Overview",
+        "🎓 Student Risk Predictor",
+        "👤 Student Deep Dive",
+        "🛠️ AI Recommendations",
+        "🔮 What-If Simulator",
         "📁 Student Data Explorer"
     ]
 )
@@ -191,7 +99,7 @@ selected_risk_filter = st.sidebar.selectbox(
     ["All Risk Levels", "High", "Medium", "Low"]
 )
 
-# Apply Sidebar Filters to Data
+# Apply Sidebar Filters
 filtered_df = get_filtered_students(
     df,
     major=selected_major,
@@ -200,84 +108,138 @@ filtered_df = get_filtered_students(
 )
 
 st.sidebar.markdown("---")
+
+# System & Model Status Indicators in Sidebar
+st.sidebar.markdown(f"""
+<div style="background: rgba(16, 39, 28, 0.85); border: 1px solid rgba(94, 234, 160, 0.2); padding: 0.85rem; border-radius: 12px; font-size: 0.78rem;">
+    <div style="display:flex; align-items:center; gap:6px; color:#5FF2A5; font-weight:700; margin-bottom:4px;">
+        <span class="pulse-dot"></span> SYSTEM ONLINE
+    </div>
+    <div style="color:#9CB7A5;">• Model: Random Forest Classifier</div>
+    <div style="color:#9CB7A5;">• Active Dataset: {len(df)} Records</div>
+    <div style="color:#9CB7A5;">• Filtered View: {len(filtered_df)} Records</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.caption("⚠️ **Demo Disclaimer**: EduPulse AI uses synthetic student data (`students_1200.csv`) and a prototype ML model for hackathon demonstration. It is not validated for real-world academic decisions.")
 
 
-# --- Top Banner Header ---
+# --- Top Header Section ---
 st.markdown("""
-<div class="header-banner">
-    <div class="header-title">🎓 EduPulse AI - Student Analytics & Success Platform</div>
-    <div class="header-subtitle">Early Academic Risk Detection & Intelligent Support Recommendation Engine</div>
+<div class="header-container animate-fade-in">
+    <div class="header-top-row">
+        <div>
+            <h1 class="header-title">🎓 Student Intelligence Dashboard</h1>
+            <div class="header-subtitle">AI-powered academic risk monitoring and student success analytics</div>
+        </div>
+        <div class="status-pills">
+            <div class="pill-indicator">
+                <span class="pulse-dot"></span> 1,200 RECORDS LOADED
+            </div>
+            <div class="pill-indicator" style="border-color: rgba(34, 197, 94, 0.4); color: #22C55E;">
+                RANDOM FOREST MODEL READY
+            </div>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 
 # ==========================================
-# VIEW 1: COHORT ANALYTICS OVERVIEW
+# VIEW 1: DASHBOARD OVERVIEW
 # ==========================================
-if app_mode == "📊 Cohort Analytics Overview":
+if app_mode == "📊 Dashboard Overview":
+    # Hero Welcome Panel
+    st.markdown("""
+    <div class="hero-card animate-slide-up">
+        <div class="hero-glow-bg"></div>
+        <div class="hero-text-content">
+            <h2>Predict Risk. Empower Success.</h2>
+            <p>EduPulse AI monitors early behavioral indicators—attendance, LMS engagement, assignment completion, and midterm performance—to deliver predictive risk scores and automated academic support interventions before dropouts occur.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     kpis = get_cohort_kpis(filtered_df)
 
     # KPI Row
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Total Students</div>
-            <div class="kpi-value">{kpis['total']}</div>
-            <div class="kpi-subtext" style="color: #94a3b8;">Active Cohort</div>
+        <div class="kpi-card-enhanced animate-fade-in">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Total Cohort</span>
+                <div class="kpi-icon-wrapper">👥</div>
+            </div>
+            <div class="kpi-val">{kpis['total']}</div>
+            <div class="kpi-sub">Active Students</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">High Risk Count</div>
-            <div class="kpi-value" style="color: #ef4444;">{kpis['high_risk_cnt']}</div>
-            <div class="kpi-subtext" style="color: #ef4444;">{kpis['high_risk_pct']}% of total</div>
+        <div class="kpi-card-enhanced kpi-danger animate-fade-in">
+            <div class="kpi-card-header">
+                <span class="kpi-label">High Risk</span>
+                <div class="kpi-icon-wrapper" style="background:rgba(239,68,68,0.15); color:#EF4444;">⚠️</div>
+            </div>
+            <div class="kpi-val" style="color:#EF4444;">{kpis['high_risk_cnt']}</div>
+            <div class="kpi-sub" style="color:#EF4444;">{kpis['high_risk_pct']}% of total</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Success Score</div>
-            <div class="kpi-value" style="color: #6366f1;">{kpis['avg_success_score']}</div>
-            <div class="kpi-subtext" style="color: #94a3b8;">0-100 Cohort Avg</div>
+        <div class="kpi-card-enhanced animate-fade-in">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Success Score</span>
+                <div class="kpi-icon-wrapper">⚡</div>
+            </div>
+            <div class="kpi-val" style="color:#5FF2A5;">{kpis['avg_success_score']}</div>
+            <div class="kpi-sub">Cohort Avg / 100</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col4:
         st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Cohort Avg GPA</div>
-            <div class="kpi-value" style="color: #38bdf8;">{kpis['avg_gpa']}</div>
-            <div class="kpi-subtext" style="color: #94a3b8;">4.0 Scale</div>
+        <div class="kpi-card-enhanced animate-fade-in">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Cohort GPA</span>
+                <div class="kpi-icon-wrapper">📘</div>
+            </div>
+            <div class="kpi-val" style="color:#38BDF8;">{kpis['avg_gpa']}</div>
+            <div class="kpi-sub">4.0 Scale</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col5:
         st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Avg Attendance</div>
-            <div class="kpi-value" style="color: #10b981;">{kpis['avg_attendance']}%</div>
-            <div class="kpi-subtext" style="color: #94a3b8;">Target: 80%+</div>
+        <div class="kpi-card-enhanced animate-fade-in">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Attendance</span>
+                <div class="kpi-icon-wrapper">🕒</div>
+            </div>
+            <div class="kpi-val" style="color:#10B981;">{kpis['avg_attendance']}%</div>
+            <div class="kpi-sub">Target: 80%+</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col6:
         st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Assignment Comp.</div>
-            <div class="kpi-value" style="color: #a855f7;">{kpis['avg_assignment']}%</div>
-            <div class="kpi-subtext" style="color: #94a3b8;">Target: 85%+</div>
+        <div class="kpi-card-enhanced animate-fade-in">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Assignment Rate</span>
+                <div class="kpi-icon-wrapper">📝</div>
+            </div>
+            <div class="kpi-val" style="color:#A855F7;">{kpis['avg_assignment']}%</div>
+            <div class="kpi-sub">Target: 85%+</div>
         </div>
         """, unsafe_allow_html=True)
 
-
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Charts Row 1: Donut Distribution & Scatter Plot
+    # Charts Row 1: Donut & Scatter Plot
     c1, c2 = st.columns([1.2, 1.8])
 
     with c1:
@@ -285,28 +247,24 @@ if app_mode == "📊 Cohort Analytics Overview":
         risk_counts = filtered_df["risk_level"].value_counts().reset_index()
         risk_counts.columns = ["Risk Level", "Count"]
 
-        colors = {"High": "#ef4444", "Medium": "#f59e0b", "Low": "#10b981"}
-
         fig_donut = px.pie(
             risk_counts,
             values="Count",
             names="Risk Level",
-            hole=0.5,
+            hole=0.55,
             color="Risk Level",
-            color_discrete_map=colors
+            color_discrete_map=RISK_COLORS
         )
-        fig_donut.update_traces(textposition='inside', textinfo='percent+label')
-        fig_donut.update_layout(
-            margin=dict(t=20, b=20, l=20, r=20),
-            showlegend=True,
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#f8fafc")
+        fig_donut.update_traces(
+            textposition='inside',
+            textinfo='percent+label',
+            marker=dict(line=dict(color='#07130F', width=2))
         )
+        apply_dark_green_plotly_theme(fig_donut)
         st.plotly_chart(fig_donut, width="stretch")
 
     with c2:
-        st.subheader("📈 GPA vs. Attendance Rate by Risk")
+        st.subheader("📈 GPA vs. Attendance Rate by Risk Tier")
         fig_scatter = px.scatter(
             filtered_df,
             x="attendance_rate",
@@ -315,36 +273,27 @@ if app_mode == "📊 Cohort Analytics Overview":
             size="study_hours_per_week",
             hover_data=["student_id", "name", "major"],
             labels={"attendance_rate": "Attendance Rate (%)", "gpa": "GPA", "study_hours_per_week": "Study Hrs/Wk"},
-            color_discrete_map=colors
+            color_discrete_map=RISK_COLORS
         )
-        fig_scatter.update_layout(
-            margin=dict(t=20, b=20, l=20, r=20),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#f8fafc")
-        )
+        fig_scatter.update_traces(marker=dict(opacity=0.85, line=dict(width=0.5, color='rgba(255,255,255,0.4)')))
+        apply_dark_green_plotly_theme(fig_scatter)
         st.plotly_chart(fig_scatter, width="stretch")
 
     # Charts Row 2: Department & Grade Breakdown
     c3, c4 = st.columns(2)
 
     with c3:
-        st.subheader("🏢 Risk Breakdown by Major")
+        st.subheader("🏢 Risk Breakdown by Major / Department")
         dept_risk = pd.crosstab(filtered_df["major"], filtered_df["risk_level"]).reset_index()
         fig_dept = px.bar(
             dept_risk,
             x="major",
             y=["High", "Medium", "Low"],
-            color_discrete_map=colors,
+            color_discrete_map=RISK_COLORS,
             labels={"value": "Student Count", "major": "Major"}
         )
-        fig_dept.update_layout(
-            barmode="stack",
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#f8fafc"),
-            margin=dict(t=20, b=20, l=20, r=20)
-        )
+        fig_dept.update_layout(barmode="stack")
+        apply_dark_green_plotly_theme(fig_dept)
         st.plotly_chart(fig_dept, width="stretch")
 
     with c4:
@@ -354,31 +303,25 @@ if app_mode == "📊 Cohort Analytics Overview":
             grade_risk,
             x="grade_level",
             y=["High", "Medium", "Low"],
-            color_discrete_map=colors,
+            color_discrete_map=RISK_COLORS,
             labels={"value": "Student Count", "grade_level": "Grade Level"}
         )
-        fig_grade.update_layout(
-            barmode="group",
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#f8fafc"),
-            margin=dict(t=20, b=20, l=20, r=20)
-        )
+        fig_grade.update_layout(barmode="group")
+        apply_dark_green_plotly_theme(fig_grade)
         st.plotly_chart(fig_grade, width="stretch")
 
 
 # ==========================================
-# VIEW 2: STUDENT RISK PREDICTOR & DEEP-DIVE
+# VIEW 2: STUDENT RISK PREDICTOR
 # ==========================================
-elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
-    st.subheader("🔍 Select Student Record")
+elif app_mode == "🎓 Student Risk Predictor":
+    st.subheader("🔍 Select Student Record to Analyze")
 
     search_col, select_col = st.columns([1, 2])
     with search_col:
-        search_query = st.text_input("Filter student by Name or ID:", placeholder="e.g. EDU-2026-1015 or Alex")
+        search_query = st.text_input("Filter by Name or ID:", placeholder="e.g. EDU-2026-1015 or Alex")
 
     selectable_df = get_filtered_students(df, search_query=search_query) if search_query else df
-
     student_options = [f"{row['student_id']} - {row['name']} ({row['major']})" for _, row in selectable_df.iterrows()]
 
     if not student_options:
@@ -386,7 +329,7 @@ elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
         st.stop()
 
     with select_col:
-        selected_option = st.selectbox("Choose Student:", student_options)
+        selected_option = st.selectbox("Choose Student Record:", student_options)
 
     selected_id = selected_option.split(" - ")[0]
     student = df[df["student_id"] == selected_id].iloc[0]
@@ -394,8 +337,6 @@ elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
     # Run Prediction & Feature Explanation
     pred = predict_student_risk(student, artifact)
     placement_pred = predict_placement_risk(student)
-    indicators = explain_student_indicators(student, artifact)
-    recommendations = generate_recommendations(student, pred, placement_pred)
 
     st.markdown("---")
 
@@ -403,65 +344,88 @@ elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
     sc1, sc2 = st.columns([1.5, 2.5])
 
     with sc1:
+        tuition_color = "#10B981" if student['tuition_status']=='Paid' else "#EF4444"
         st.markdown(f"""
-        <div style="background-color: #1e293b; padding: 1.5rem; border-radius: 12px; border: 1px solid #334155;">
-            <h3 style="color: #38bdf8; margin-top:0;">👤 {student['name']}</h3>
-            <p><strong>Student ID:</strong> {student['student_id']}</p>
-            <p><strong>Major:</strong> {student['major']}</p>
-            <p><strong>Grade Level:</strong> {student['grade_level']}</p>
-            <p><strong>Success Score:</strong> <span style="color: #6366f1; font-weight: bold;">{pred['success_score']} / 100</span></p>
-            <p><strong>Tuition Status:</strong> <span style="color: {'#10b981' if student['tuition_status']=='Paid' else '#ef4444'}; font-weight: bold;">{student['tuition_status']}</span></p>
+        <div class="section-glass-container">
+            <h3 style="color: #5FF2A5; margin-top:0; font-size: 1.35rem; font-weight: 800;">👤 {student['name']}</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.8rem; font-size: 0.95rem;">
+                <div><span style="color: #9CB7A5; font-weight: 600;">Student ID:</span> <span style="font-weight: 700; color: #F0FDF4;">{student['student_id']}</span></div>
+                <div><span style="color: #9CB7A5; font-weight: 600;">Major:</span> <span style="font-weight: 700; color: #F0FDF4;">{student['major']}</span></div>
+                <div><span style="color: #9CB7A5; font-weight: 600;">Grade Level:</span> <span style="font-weight: 700; color: #F0FDF4;">{student['grade_level']}</span></div>
+                <div><span style="color: #9CB7A5; font-weight: 600;">Success Score:</span> <span style="color: #5FF2A5; font-weight: 800; font-size: 1.1rem;">{pred['success_score']} / 100</span></div>
+                <div><span style="color: #9CB7A5; font-weight: 600;">Tuition Status:</span> <span style="color: {tuition_color}; font-weight: 700;">{student['tuition_status']}</span></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
     with sc2:
         risk_class = pred["predicted_risk"]
-        color_hex = "#ef4444" if risk_class == "High" else "#f59e0b" if risk_class == "Medium" else "#10b981"
+        color_hex = RISK_COLORS.get(risk_class, "#10B981")
         badge_symbol = "🔴" if risk_class == "High" else "🟡" if risk_class == "Medium" else "🟢"
 
         p_risk = placement_pred["placement_risk"]
-        p_color = "#ef4444" if p_risk == "High" else "#f59e0b" if p_risk == "Medium" else "#10b981"
+        p_color = RISK_COLORS.get(p_risk, "#10B981")
         p_symbol = "🔴" if p_risk == "High" else "🟡" if p_risk == "Medium" else "🟢"
 
         st.markdown(f"""
-        <div style="background-color: #1e293b; padding: 1.2rem; border-radius: 12px; border: 2px solid {color_hex}; text-align: center;">
-            <div style="display: flex; justify-content: space-around; align-items: center;">
-                <div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Academic Risk Level</div>
-                    <div style="font-size: 1.6rem; font-weight: 800; color: {color_hex}; margin: 0.2rem 0;">
+        <div class="section-glass-container" style="border-top: 4px solid {color_hex}; text-align: center;">
+            <div style="display: flex; justify-content: space-around; align-items: center; gap: 1rem;">
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; color: #9CB7A5; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Academic Risk Level</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: {color_hex}; margin: 0.3rem 0;">
                         {badge_symbol} {risk_class.upper()} RISK
                     </div>
                 </div>
-                <div style="border-left: 1px solid #334155; height: 50px;"></div>
-                <div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Placement Readiness Risk</div>
-                    <div style="font-size: 1.6rem; font-weight: 800; color: {p_color}; margin: 0.2rem 0;">
+                <div style="border-left: 1px solid rgba(94, 234, 160, 0.15); height: 55px;"></div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; color: #9CB7A5; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Placement Readiness Risk</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: {p_color}; margin: 0.3rem 0;">
                         {p_symbol} {p_risk.upper()} RISK
                     </div>
-                    <div style="font-size: 0.78rem; color: #cbd5e1;">Readiness Score: {placement_pred['placement_score']}/100</div>
+                    <div style="font-size: 0.8rem; color: #9CB7A5; font-weight: 600;">Readiness Score: {placement_pred['placement_score']}/100</div>
                 </div>
             </div>
-            <div style="display: flex; justify-content: space-around; margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid #334155;">
-                <div><span style="color:#ef4444; font-weight:bold;">High Risk Prob:</span> {pred['high_risk_prob']}%</div>
-                <div><span style="color:#f59e0b; font-weight:bold;">Medium Risk Prob:</span> {pred['medium_risk_prob']}%</div>
-                <div><span style="color:#10b981; font-weight:bold;">Low Risk Prob:</span> {pred['low_risk_prob']}%</div>
+            <div style="display: flex; justify-content: space-around; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid rgba(94, 234, 160, 0.12); font-size: 0.9rem;">
+                <div><span style="color:#EF4444; font-weight:700;">High Risk Prob:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['high_risk_prob']}%</span></div>
+                <div><span style="color:#F59E0B; font-weight:700;">Medium Risk Prob:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['medium_risk_prob']}%</span></div>
+                <div><span style="color:#10B981; font-weight:700;">Low Risk Prob:</span> <span style="font-weight:800; color:#F0FDF4;">{pred['low_risk_prob']}%</span></div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
 
-    st.markdown("<br>", unsafe_allow_html=True)
+# ==========================================
+# VIEW 3: STUDENT DEEP DIVE
+# ==========================================
+elif app_mode == "👤 Student Deep Dive":
+    st.subheader("👤 Student Feature Indicators & Deep Dive Analysis")
 
-    # Feature Indicators & Breakdown Section
-    st.subheader("💡 Key Academic Indicators & Model Explanations")
+    search_col, select_col = st.columns([1, 2])
+    with search_col:
+        search_query = st.text_input("Search student name/ID:", placeholder="e.g. Alex")
 
+    selectable_df = get_filtered_students(df, search_query=search_query) if search_query else df
+    student_options = [f"{row['student_id']} - {row['name']} ({row['major']})" for _, row in selectable_df.iterrows()]
+
+    if not student_options:
+        st.warning("No student matching your query was found.")
+        st.stop()
+
+    with select_col:
+        selected_option = st.selectbox("Select Student for Feature Analysis:", student_options)
+
+    selected_id = selected_option.split(" - ")[0]
+    student = df[df["student_id"] == selected_id].iloc[0]
+
+    indicators = explain_student_indicators(student, artifact)
+
+    st.markdown("---")
     ind_col1, ind_col2 = st.columns([1.8, 1.2])
 
     with ind_col1:
         st.markdown("#### Feature Metrics vs. Cohort Average")
         ind_df = pd.DataFrame(indicators)
 
-        # Horizontal impact chart
         fig_ind = px.bar(
             ind_df,
             x="impact_score",
@@ -469,20 +433,15 @@ elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
             orientation="h",
             color="status",
             color_discrete_map={
-                "Risk Driver": "#ef4444",
-                "Average": "#64748b",
-                "Positive Strength": "#10b981"
+                "Risk Driver": "#EF4444",
+                "Average": "#64748B",
+                "Positive Strength": "#10B981"
             },
             labels={"impact_score": "Relative Indicator Impact Score", "feature_name": "Indicator"},
             hover_data=["student_value", "cohort_avg", "badge"]
         )
-        fig_ind.update_layout(
-            yaxis=dict(autorange="reversed"),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#f8fafc"),
-            margin=dict(t=10, b=10, l=10, r=10)
-        )
+        fig_ind.update_layout(yaxis=dict(autorange="reversed"))
+        apply_dark_green_plotly_theme(fig_ind)
         st.plotly_chart(fig_ind, width="stretch")
 
     with ind_col2:
@@ -491,26 +450,38 @@ elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
         display_ind.columns = ["Status", "Metric", "Student Value", "Cohort Avg"]
         st.dataframe(display_ind, width="stretch", hide_index=True)
 
+
+# ==========================================
+# VIEW 4: AI RECOMMENDATIONS
+# ==========================================
+elif app_mode == "🛠️ AI Recommendations":
+    st.subheader("🛠️ Actionable Support Interventions & Recommendations")
+
+    sim_student_id = st.selectbox("Select Student for Recommendations:", df["student_id"] + " - " + df["name"])
+    sid = sim_student_id.split(" - ")[0]
+    student = df[df["student_id"] == sid].iloc[0]
+
+    pred = predict_student_risk(student, artifact)
+    placement_pred = predict_placement_risk(student)
+    recommendations = generate_recommendations(student, pred, placement_pred)
+
     st.markdown("---")
 
-    # Actionable Academic Support Recommendations Section
-    st.subheader("🛠️ Recommended Academic Support Interventions")
-
     for rec in recommendations:
-        priority_color = "#ef4444" if "High" in rec["priority"] or "Critical" in rec["priority"] else "#f59e0b" if "Medium" in rec["priority"] else "#38bdf8"
+        priority_color = "#EF4444" if "High" in rec["priority"] or "Critical" in rec["priority"] else "#F59E0B" if "Medium" in rec["priority"] else "#5FF2A5"
 
         st.markdown(f"""
-        <div class="rec-card" style="border-left-color: {priority_color};">
-            <div class="rec-header">
-                <span class="rec-title">{rec['action']}</span>
-                <span style="background-color: {priority_color}; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
+        <div class="rec-item-card" style="border-left-color: {priority_color};">
+            <div class="rec-item-header">
+                <span class="rec-item-title">{rec['action']}</span>
+                <span style="background-color: {priority_color}; color: #07130F; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 800;">
                     {rec['priority']}
                 </span>
             </div>
-            <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; margin-bottom: 0.3rem;">
+            <div class="rec-category-tag">
                 CATEGORY: {rec['category'].upper()}
             </div>
-            <div class="rec-details">
+            <div class="rec-item-desc">
                 {rec['details']}
             </div>
         </div>
@@ -518,9 +489,9 @@ elif app_mode == "🎓 Student Risk Predictor & Deep-Dive":
 
 
 # ==========================================
-# VIEW 3: INTERACTIVE WHAT-IF SIMULATOR
+# VIEW 5: INTERACTIVE WHAT-IF SIMULATOR
 # ==========================================
-elif app_mode == "🔮 Interactive What-If Simulator":
+elif app_mode == "🔮 What-If Simulator":
     st.subheader("🔮 Interventions Simulator (What-If Scenario)")
     st.markdown("Test how targeted academic interventions (e.g., increasing attendance or study hours) impact a student's predicted risk level in real-time.")
 
@@ -582,31 +553,30 @@ elif app_mode == "🔮 Interactive What-If Simulator":
         orig_risk = original_pred["predicted_risk"]
         sim_risk = sim_pred["predicted_risk"]
 
-        orig_color = "#ef4444" if orig_risk == "High" else "#f59e0b" if orig_risk == "Medium" else "#10b981"
-        sim_color = "#ef4444" if sim_risk == "High" else "#f59e0b" if sim_risk == "Medium" else "#10b981"
+        orig_color = RISK_COLORS.get(orig_risk, "#10B981")
+        sim_color = RISK_COLORS.get(sim_risk, "#10B981")
 
         res_c1, res_c2 = st.columns(2)
         with res_c1:
             st.markdown(f"""
-            <div style="background-color: #1e293b; padding: 1.2rem; border-radius: 10px; border-top: 4px solid {orig_color}; text-align: center;">
-                <div style="font-size: 0.85rem; color: #94a3b8;">ORIGINAL RISK LEVEL</div>
-                <div style="font-size: 1.6rem; font-weight: bold; color: {orig_color};">{orig_risk.upper()}</div>
-                <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 0.5rem;">High Risk Prob: {original_pred['high_risk_prob']}%</div>
+            <div class="section-glass-container" style="border-top: 4px solid {orig_color}; text-align: center;">
+                <div style="font-size: 0.85rem; color: #9CB7A5; font-weight: 700; text-transform: uppercase;">ORIGINAL RISK LEVEL</div>
+                <div style="font-size: 1.7rem; font-weight: 800; color: {orig_color}; margin: 0.3rem 0;">{orig_risk.upper()}</div>
+                <div style="font-size: 0.9rem; color: #F0FDF4; font-weight: 600;">High Risk Prob: {original_pred['high_risk_prob']}%</div>
             </div>
             """, unsafe_allow_html=True)
 
         with res_c2:
             st.markdown(f"""
-            <div style="background-color: #1e293b; padding: 1.2rem; border-radius: 10px; border-top: 4px solid {sim_color}; text-align: center;">
-                <div style="font-size: 0.85rem; color: #94a3b8;">SIMULATED RISK LEVEL</div>
-                <div style="font-size: 1.6rem; font-weight: bold; color: {sim_color};">{sim_risk.upper()}</div>
-                <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 0.5rem;">High Risk Prob: {sim_pred['high_risk_prob']}%</div>
+            <div class="section-glass-container" style="border-top: 4px solid {sim_color}; text-align: center;">
+                <div style="font-size: 0.85rem; color: #9CB7A5; font-weight: 700; text-transform: uppercase;">SIMULATED RISK LEVEL</div>
+                <div style="font-size: 1.7rem; font-weight: 800; color: {sim_color}; margin: 0.3rem 0;">{sim_risk.upper()}</div>
+                <div style="font-size: 0.9rem; color: #F0FDF4; font-weight: 600;">High Risk Prob: {sim_pred['high_risk_prob']}%</div>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Risk probability shift comparison bar chart
         prob_comp_df = pd.DataFrame([
             {"Scenario": "Original Baseline", "High Risk": original_pred['high_risk_prob'], "Medium Risk": original_pred['medium_risk_prob'], "Low Risk": original_pred['low_risk_prob']},
             {"Scenario": "Simulated Intervention", "High Risk": sim_pred['high_risk_prob'], "Medium Risk": sim_pred['medium_risk_prob'], "Low Risk": sim_pred['low_risk_prob']}
@@ -616,20 +586,16 @@ elif app_mode == "🔮 Interactive What-If Simulator":
             prob_comp_df,
             x="Scenario",
             y=["High Risk", "Medium Risk", "Low Risk"],
-            color_discrete_map={"High Risk": "#ef4444", "Medium Risk": "#f59e0b", "Low Risk": "#10b981"},
+            color_discrete_map={"High Risk": "#EF4444", "Medium Risk": "#F59E0B", "Low Risk": "#10B981"},
             title="Risk Probability Distribution Comparison (%)"
         )
-        fig_prob.update_layout(
-            barmode="group",
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#f8fafc")
-        )
+        fig_prob.update_layout(barmode="group")
+        apply_dark_green_plotly_theme(fig_prob)
         st.plotly_chart(fig_prob, width="stretch")
 
 
 # ==========================================
-# VIEW 4: STUDENT DATA EXPLORER
+# VIEW 6: STUDENT DATA EXPLORER
 # ==========================================
 elif app_mode == "📁 Student Data Explorer":
     st.subheader("📁 Cohort Student Data Directory")
