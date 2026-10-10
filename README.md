@@ -34,7 +34,7 @@ EduPulse AI is an end-to-end Machine Learning powered educational analytics plat
 
 * **Core Language**: Python 3.14
 * **Interactive Web Framework**: Streamlit (v1.65.0)
-* **Primary Hosting Platform**: Streamlit Community Cloud ([https://share.streamlit.io/](https://share.streamlit.io/))
+* **Primary Hosting Platform**: Streamlit Community Cloud (* **Live Dashboard**: [Launch EduPulse AI](PASTE_YOUR_ACTUAL_STREAMLIT_APP_URL_HERE))
 * **Static Prototype Host**: GitHub Pages ([https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/))
 * **Machine Learning**: Scikit-Learn (v1.9.1) - Random Forest Classifier
 * **Data Processing & Analytics**: Pandas, NumPy
