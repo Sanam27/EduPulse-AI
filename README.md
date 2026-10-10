@@ -6,6 +6,9 @@ EduPulse AI is an end-to-end Machine Learning powered educational analytics plat
 
 > ⚠️ **Hackathon & Prototype Disclaimer**: The dataset (`students_1200.csv`) is synthetically generated for demonstration purposes, and the trained model is a proof-of-concept prototype. It is not validated for real-world institutional or high-stakes academic decision-making.
 
+* **🌐 Live Streamlit Dashboard**: [https://edupulse-ai.streamlit.app](https://edupulse-ai.streamlit.app) *(Replace with your actual Streamlit Community Cloud URL)*
+* **💻 GitHub Pages Presentation**: [https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/)
+
 ---
 
 
