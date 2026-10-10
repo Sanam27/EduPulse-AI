@@ -1,0 +1,105 @@
+# ==========================================
+# EduPulse AI - Git Ignore Configuration
+# ==========================================
+
+# --- Python & Bytecode Cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+bin/
+include/
+share/
+
+# --- Streamlit & Web App Secrets / Runtime ---
+.streamlit/secrets.toml
+.streamlit/local_config.toml
+
+# --- Environment Variables, Local Secrets & API Keys ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.pfx
+secrets.json
+config.private.json
+
+# --- Sensitive / Private Student Data ---
+# Exclude raw or PII-containing student datasets
+data/private/
+data/raw/
+*_private.csv
+*_pii.csv
+*_sensitive.csv
+
+# --- Heavy Model Artifacts & Data Dumps ---
+# Ignore large dataset archives and temporary model checkpoints
+*.h5
+*.ckpt
+*.pt
+*.onnx
+*.safetensors
+*.bin
+*.parquet
+*.nc
+*.sqlite
+*.db
+
+# NOTE: Lightweight demo dataset and demo trained model required for app execution are tracked.
+# If a demo model/dataset is placed under models/ or data/, keep them unignored or explicitly allow:
+# !data/demo/
+# !data/sample_students.csv
+# !models/edupulse_model.pkl
+
+# --- Temporary Files & Logs ---
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+logs/
+
+# --- Testing & Jupyter Notebooks ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ipynb_checkpoints
+
+# --- OS & IDE Metadata ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
