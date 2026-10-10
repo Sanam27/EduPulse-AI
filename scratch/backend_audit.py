@@ -29,11 +29,11 @@ def run_backend_audit():
     data_path = "data/students_1200.csv"
     assert os.path.exists(data_path), f"Dataset path missing: {data_path}"
     df = load_student_data(data_path)
-    
+
     null_count = int(df.isnull().sum().sum())
     dup_rows = int(df.duplicated().sum())
     dup_ids = int(df['student_id'].duplicated().sum())
-    
+
     print("[CHECK 1] Dataset Path, Schema & Integrity:")
     print(f"  - File Path: {data_path} (Exists)")
     print(f"  - Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns")
@@ -52,15 +52,15 @@ def run_backend_audit():
     model_path = "models/risk_model.pkl"
     assert os.path.exists(model_path), f"Model path missing: {model_path}"
     artifact = load_model(model_path)
-    
+
     clf = artifact["model"]
     model_features = artifact["features"]
-    
+
     student_sample = df.iloc[0].to_dict()
     pred_res = predict_student_risk(student_sample, artifact)
     exp_res = explain_student_indicators(student_sample, artifact)
     exp_keys = [e["feature_key"] for e in exp_res]
-    
+
     print("[CHECK 2] Model Loading & Feature Alignment:")
     print(f"  - Model File Path: {model_path} (Exists)")
     print(f"  - Trained Feature Order: {model_features}")
@@ -77,7 +77,7 @@ def run_backend_audit():
     y = df[TARGET_COL]
     X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
     overlap = len(set(X_tr.index).intersection(set(X_te.index)))
-    
+
     print("[CHECK 3] Data Leakage & Evaluation Split:")
     print(f"  - Stratified Train Split: {len(X_tr)} samples (80%)")
     print(f"  - Held-Out Test Split: {len(X_te)} samples (20%)")
@@ -86,34 +86,40 @@ def run_backend_audit():
     print("  => STATUS: PASS\n")
 
     # ----------------------------------------------------
-    # Check 4: Prediction & Explanation Logic
+    # Check 4: Prediction Logic, Success Score & Risk Explanations
     # ----------------------------------------------------
+    from src.model_utils import predict_placement_risk
     high_student = df[df["risk_level"] == "High"].iloc[0]
     low_student = df[df["risk_level"] == "Low"].iloc[0]
-    
+
     pred_h = predict_student_risk(high_student, artifact)
     pred_l = predict_student_risk(low_student, artifact)
     exp_h = explain_student_indicators(high_student, artifact)
-    
-    print("[CHECK 4] Prediction Logic & Risk Explanations:")
-    print(f"  - High Risk Student ({high_student['name']}): Predicted {pred_h['predicted_risk']} (Prob: {pred_h['high_risk_prob']}%)")
-    print(f"  - Low Risk Student ({low_student['name']}): Predicted {pred_l['predicted_risk']} (Prob: {pred_l['low_risk_prob']}%)")
+    place_h = predict_placement_risk(high_student)
+    place_l = predict_placement_risk(low_student)
+
+    print("[CHECK 4] Prediction Logic, Success Score & Placement Risk:")
+    print(f"  - High Risk Student ({high_student['name']}): Academic Risk={pred_h['predicted_risk']}, Success Score={pred_h['success_score']}/100, Placement Risk={place_h['placement_risk']} ({place_h['placement_score']}/100)")
+    print(f"  - Low Risk Student ({low_student['name']}): Academic Risk={pred_l['predicted_risk']}, Success Score={pred_l['success_score']}/100, Placement Risk={place_l['placement_risk']} ({place_l['placement_score']}/100)")
     print(f"  - Top Impact Risk Indicator: {exp_h[0]['feature_name']} (Z-score: {exp_h[0]['z_score']}, Badge: {exp_h[0]['badge']})")
     assert pred_h["predicted_risk"] == "High", "High risk prediction failed"
     assert pred_l["predicted_risk"] == "Low", "Low risk prediction failed"
+    assert "success_score" in pred_h and 0 <= pred_h["success_score"] <= 100, "Invalid success_score"
+    assert "placement_risk" in place_h and place_h["placement_risk"] in ["High", "Medium", "Low"], "Invalid placement_risk"
     print("  => STATUS: PASS\n")
 
     # ----------------------------------------------------
     # Check 5: Recommendation Logic Alignment
     # ----------------------------------------------------
-    recs_h = generate_recommendations(high_student, pred_h)
-    recs_l = generate_recommendations(low_student, pred_l)
-    
-    print("[CHECK 5] Recommendation Logic & Indicator Mapping:")
+    recs_h = generate_recommendations(high_student, pred_h, place_h)
+    recs_l = generate_recommendations(low_student, pred_l, place_l)
+
+    print("[CHECK 5] Recommendation Logic & Placement Action Mapping:")
     print(f"  - High Risk Recs Count: {len(recs_h)} (Top Action: '{recs_h[0]['action']}')")
     print(f"  - Low Risk Recs Count: {len(recs_l)} (Top Action: '{recs_l[0]['action']}')")
     assert len(recs_h) >= 1, "High risk student received 0 recommendations"
     assert "Advisor" in recs_h[0]["action"] or "Emergency" in recs_h[0]["category"], "Emergency recommendation missing for high risk"
+    assert any("Career" in r["category"] for r in recs_h), "Placement career recommendation missing"
     print("  => STATUS: PASS\n")
 
     # ----------------------------------------------------
@@ -121,13 +127,17 @@ def run_backend_audit():
     # ----------------------------------------------------
     empty_filtered = get_filtered_students(df, search_query="NONEXISTENT_STUDENT_NAME_XYZ")
     empty_kpis = get_cohort_kpis(empty_filtered)
-    
-    print("[CHECK 6 & 7] Edge Cases & Empty Data Handling:")
+    valid_kpis = get_cohort_kpis(df)
+
+    print("[CHECK 6 & 7] Edge Cases & Cohort KPIs:")
     print(f"  - Non-matching Search Result Length: {len(empty_filtered)}")
+    print(f"  - Cohort Success Score KPI: {valid_kpis['avg_success_score']}/100")
     print(f"  - Empty Data KPIs Output: {empty_kpis}")
     assert empty_kpis["total"] == 0, "Empty KPI handling failed"
     assert empty_kpis["high_risk_cnt"] == 0, "Empty high risk count handling failed"
+    assert "avg_success_score" in valid_kpis, "avg_success_score missing from KPIs"
     print("  => STATUS: PASS\n")
+
 
     # ----------------------------------------------------
     # Check 8: Privacy, Secrets & Synthetic Data Disclosure

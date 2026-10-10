@@ -23,10 +23,10 @@ def run_sec_audit():
         r"ghp_[0-9a-zA-Z]{36}",
         r"sk_[live|test]_[0-9a-zA-Z]{24}"
     ]
-    
+
     found_secrets = []
     py_files = glob.glob("**/*.py", recursive=True) + glob.glob("**/*.txt", recursive=True) + glob.glob("**/*.md", recursive=True)
-    
+
     for fpath in py_files:
         if ".venv" in fpath or "__pycache__" in fpath or "scratch" in fpath:
             continue
@@ -39,7 +39,7 @@ def run_sec_audit():
                         found_secrets.append((fpath, pattern))
         except Exception as e:
             pass
-            
+
     print(f"  - Hardcoded Secret Match Count: {len(found_secrets)}")
     if found_secrets:
         print(f"  - Flagged files: {[f[0] for f in found_secrets]}")
