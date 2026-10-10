@@ -4,32 +4,42 @@
 
 EduPulse AI is an end-to-end Machine Learning powered educational analytics platform designed to help educators, academic advisors, and institutional administrators identify early signs of academic risk and deliver personalized, actionable support interventions to students.
 
-> ⚠️ **Hackathon & Prototype Disclaimer**: The dataset (`students_1200.csv`) is synthetically generated for demonstration purposes, and the trained model is a proof-of-concept prototype. It is not validated for real-world institutional or high-stakes academic decision-making.
-
-* **🌐 Live Streamlit Dashboard**: [https://edupulse-ai.streamlit.app](https://edupulse-ai.streamlit.app) *(Replace with your actual Streamlit Community Cloud URL)*
-* **💻 GitHub Pages Presentation**: [https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/)
-
 ---
 
+### 🌐 Quick Links & Access Points
+
+| Link | Destination | Description |
+| :--- | :--- | :--- |
+| 🌐 **View Prototype** | [https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/) | Static GitHub Pages presentation & feature showcase prototype |
+| 🚀 **Launch Live Dashboard** | [STREAMLIT_APP_URL_PENDING](STREAMLIT_APP_URL_PENDING) | Interactive Streamlit Community Cloud Python application |
+| 💻 **View Source Code** | [https://github.com/vansh-8300/EduPulse-AI](https://github.com/vansh-8300/EduPulse-AI) | GitHub source repository |
+
+> ℹ️ **Streamlit Deployment Note**: `STREAMLIT_APP_URL_PENDING` is a temporary placeholder. Once you deploy `app.py` on Streamlit Community Cloud at [https://share.streamlit.io/](https://share.streamlit.io/), replace `STREAMLIT_APP_URL_PENDING` in `README.md` and `index.html` with your live Streamlit app URL (e.g., `https://edupulse-ai.streamlit.app`).
+
+> ⚠️ **Hackathon & Prototype Disclaimer**: The dataset (`students_1200.csv`) is synthetically generated for demonstration purposes, and the trained model is a proof-of-concept prototype. It is not validated for real-world institutional or high-stakes academic decision-making.
+
+---
 
 ## 🌟 Key Features
 
 * **📊 Cohort Analytics Overview**: Real-time cohort KPIs (Total Students, High Risk %, Avg GPA, Avg Attendance, Assignment Completion) accompanied by Plotly visual analytics (Risk Distribution, GPA vs. Attendance Scatter, Department & Grade Level Risk Breakdowns).
-* **🎓 Student Risk Predictor & Deep-Dive**: Search and inspect individual student profiles to view Machine Learning risk predictions (`High`, `Medium`, `Low`), class probabilities, and feature indicator z-score impact badges.
+* **🎓 Student Risk Predictor & Deep-Dive**: Search and inspect individual student profiles to view Machine Learning risk predictions (`High`, `Medium`, `Low`), class probabilities, placement readiness scores, and feature indicator z-score impact badges.
 * **🛠️ Personalized Recommendation Engine**: Context-aware intervention generator that maps low metrics to specific recovery actions (e.g., bi-weekly advisor coaching, peer tutoring, LMS orientation, wellness counseling, financial aid assistance).
 * **🔮 Interactive What-If Simulator**: Real-time scenario planning tool allowing advisors to adjust student parameters (attendance, study hours, assignment completion, stress level) and visually compare simulated vs. baseline risk probabilities.
-* **📁 Student Data Explorer**: Interactive directory featuring multi-attribute filtering (Major, Grade Level, Risk Level) and instant CSV data export.
+* **📁 Student Data Explorer**: Interactive directory featuring multi-attribute filtering (Major, Grade Level, Risk Level) and instant formula-sanitized CSV data export.
 
 ---
 
 ## 🛠️ Technology Stack
 
 * **Core Language**: Python 3.14
-* **Web Framework**: Streamlit (v1.65.0)
+* **Interactive Web Framework**: Streamlit (v1.65.0)
+* **Primary Hosting Platform**: Streamlit Community Cloud ([https://share.streamlit.io/](https://share.streamlit.io/))
+* **Static Prototype Host**: GitHub Pages ([https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/))
 * **Machine Learning**: Scikit-Learn (v1.9.1) - Random Forest Classifier
 * **Data Processing & Analytics**: Pandas, NumPy
 * **Data Visualization**: Plotly Express & Plotly Graph Objects
-* **Model Serialization**: Joblib
+* **Model Serialization**: Joblib with SHA-256 integrity checksum verification
 
 ---
 
@@ -42,8 +52,8 @@ Synthetic data generator (`generate_data.py`) generates 1,200 student academic p
 
 ### Machine Learning Classifier
 * **Algorithm**: `RandomForestClassifier` (120 estimators, max depth 10, class-balanced weights).
-* **Training Pipeline**: `train_model.py` performs a 80/20 stratified split (`train_test_split`) to maintain risk class proportions.
-* **Performance**: Achieves **90.00% accuracy** across 3 risk tiers (`High`, `Medium`, `Low`).
+* **Training Pipeline**: `train_model.py` performs an 80/20 stratified split (`train_test_split`) to maintain risk class proportions.
+* **Performance**: Achieves **90.00% evaluation accuracy** across 3 risk tiers (`High`, `Medium`, `Low`).
 
 ---
 
@@ -51,10 +61,12 @@ Synthetic data generator (`generate_data.py`) generates 1,200 student academic p
 
 ```
 EduPulse_AI/
-├── app.py                  # Main Streamlit web application
+├── app.py                  # Main Streamlit interactive web application
+├── api.py                  # FastAPI REST backend microservice (optional API layer)
 ├── generate_data.py        # Synthetic dataset generator script
 ├── train_model.py          # Machine learning model training script
 ├── requirements.txt        # Python dependency specifications
+├── index.html              # GitHub Pages presentation prototype entry point
 ├── .gitignore              # Git ignore rules for virtualenvs & cache
 ├── README.md               # Project documentation & setup guide
 ├── data/
@@ -70,12 +82,12 @@ EduPulse_AI/
 
 ---
 
-## 🚀 Quickstart & Setup Instructions
+## 🚀 Local Setup & Quickstart
 
 ### 1. Clone the Repository
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd EduPulse_AI
+git clone https://github.com/vansh-8300/EduPulse-AI.git
+cd EduPulse-AI
 ```
 
 ### 2. Set Up Virtual Environment & Dependencies
@@ -83,6 +95,10 @@ cd EduPulse_AI
 # Windows
 python -m venv .venv
 .\.venv\Scripts\activate
+
+# Linux / macOS
+python3 -m venv .venv
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -97,7 +113,7 @@ python generate_data.py
 python train_model.py
 ```
 
-### 4. Run the Streamlit Dashboard
+### 4. Run the Streamlit Dashboard Locally
 ```bash
 python -m streamlit run app.py
 ```
@@ -105,9 +121,36 @@ Open your browser and navigate to `http://localhost:8501`.
 
 ---
 
+## ☁️ Streamlit Community Cloud Deployment Guide
+
+EduPulse AI is configured for one-click deployment on **Streamlit Community Cloud** ([https://share.streamlit.io/](https://share.streamlit.io/)). Follow these steps to host your live interactive dashboard:
+
+### Deployment Steps:
+1. **Sign in to Streamlit Community Cloud**:
+   Go to [https://share.streamlit.io/](https://share.streamlit.io/) and log in with your GitHub account.
+
+2. **Create New App**:
+   Click the **"New app"** / **"Create app"** button in your dashboard workspace.
+
+3. **Configure Repository Settings**:
+   - **Repository**: `vansh-8300/EduPulse-AI`
+   - **Branch**: `main`
+   - **Main file path**: `app.py`
+   - **App URL** (Optional custom subdomain): e.g. `edupulse-ai`
+
+4. **Deploy Application**:
+   Click **"Deploy!"**. Streamlit Community Cloud will automatically install dependencies from `requirements.txt` and launch `app.py`.
+
+5. **Update Live Application Links**:
+   Once deployment completes, copy your live Streamlit URL (e.g. `https://edupulse-ai.streamlit.app`) and replace the `STREAMLIT_APP_URL_PENDING` placeholder in:
+   - `README.md`
+   - `index.html`
+
+---
+
 ## ⚠️ Limitations & Future Roadmap
 
-* **Synthetic Data Base**: Current model is trained on realistic synthetic student data. Future iterations will support direct LMS database integration (e.g., Canvas, Blackboard API via OAuth).
+* **Synthetic Data Base**: Current model is trained on realistic synthetic student data. Future iterations will support direct LMS database integration (e.g., Canvas, Blackboard API via OAuth 2.0).
 * **Demographic Bias Protection**: Intentionally excludes demographic attributes to prevent bias in academic risk prediction.
 * **Longitudinal Tracking**: Future releases will incorporate time-series modeling to track student metric trends across multiple semesters.
 
@@ -118,4 +161,5 @@ Open your browser and navigate to `http://localhost:8501`.
 Prior to deploying EduPulse AI in a live university environment with real student records:
 1. **Authentication & FERPA Authorization**: Implement Single Sign-On (OAuth 2.0 / SAML 2.0 via Azure AD or Google Workspace) and strict Role-Based Access Control (RBAC) to ensure students can access only their own metrics while advisors access assigned cohorts.
 2. **Model Deserialization Integrity**: SHA-256 checksum verification is enforced via `verify_model_integrity()` in `src/model_utils.py` prior to `joblib.load()`.
-3. **CSV Export Sanitization**: Spreadsheet formula trigger escaping (`=`, `+`, `-`, `@`) is applied to CSV downloads to prevent spreadsheet code execution.
+3. **CSV Export Sanitization**: Spreadsheet formula trigger escaping (`=`, `+`, `-`, `@`) is applied to CSV downloads to prevent spreadsheet code execution attacks.
+4. **FastAPI Microservice Layer**: For REST API integration, `api.py` provides validated `/health` and `/predict` endpoints using Pydantic request validation.
