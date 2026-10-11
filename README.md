@@ -11,10 +11,10 @@ EduPulse AI is an end-to-end Machine Learning powered educational analytics plat
 | Link | Destination | Description |
 |---|---|---|
 | 🌐 **View Prototype** | [Open Prototype](https://vansh-8300.github.io/EduPulse-AI/) | Static GitHub Pages prototype |
-| 🚀 **Live Dashboard** | [Launch EduPulse AI](https://YOUR-ACTUAL-APP.streamlit.app/) | Interactive Streamlit application |
+| 🚀 **Live Dashboard** | [Launch EduPulse AI](https://vansh-8300-edupulse-ai-app-upe9tn.streamlit.app/) | Interactive Streamlit application |
 | 💻 **View Source Code** | [GitHub Repository](https://github.com/vansh-8300/EduPulse-AI) | Project source code |
 
-> ℹ️ **Streamlit Deployment:** Deploy `app.py` through [Streamlit Community Cloud](https://share.streamlit.io/). Once deployment succeeds, replace “Deployment pending” with a link to your actual Streamlit dashboard URL.
+> ℹ️ **Streamlit Deployment:** The live interactive dashboard is deployed and running on [Streamlit Community Cloud](https://vansh-8300-edupulse-ai-app-upe9tn.streamlit.app/).
 
 
 > ⚠️ **Hackathon & Prototype Disclaimer**: The dataset (`students_1200.csv`) is synthetically generated for demonstration purposes, and the trained model is a proof-of-concept prototype. It is not validated for real-world institutional or high-stakes academic decision-making.
@@ -35,7 +35,7 @@ EduPulse AI is an end-to-end Machine Learning powered educational analytics plat
 
 * **Core Language**: Python 3.14
 * **Interactive Web Framework**: Streamlit (v1.65.0)
-* **Primary Hosting Platform**: Streamlit Community Cloud (* **Live Dashboard**: [Launch EduPulse AI](PASTE_YOUR_ACTUAL_STREAMLIT_APP_URL_HERE))
+* **Primary Hosting Platform**: Streamlit Community Cloud (* **Live Dashboard**: [Launch EduPulse AI](https://vansh-8300-edupulse-ai-app-upe9tn.streamlit.app/))
 * **Static Prototype Host**: GitHub Pages ([https://vansh-8300.github.io/EduPulse-AI/](https://vansh-8300.github.io/EduPulse-AI/))
 * **Machine Learning**: Scikit-Learn (v1.9.1) - Random Forest Classifier
 * **Data Processing & Analytics**: Pandas, NumPy
@@ -142,10 +142,8 @@ EduPulse AI is configured for one-click deployment on **Streamlit Community Clou
 4. **Deploy Application**:
    Click **"Deploy!"**. Streamlit Community Cloud will automatically install dependencies from `requirements.txt` and launch `app.py`.
 
-5. **Update Live Application Links**:
-   Once deployment completes, copy your live Streamlit URL (e.g. `https://edupulse-ai.streamlit.app`) and replace the `STREAMLIT_APP_URL_PENDING` placeholder in:
-   - `README.md`
-   - `index.html`
+5. **Live Application URL**:
+   The interactive dashboard is deployed and live at [https://vansh-8300-edupulse-ai-app-upe9tn.streamlit.app/](https://vansh-8300-edupulse-ai-app-upe9tn.streamlit.app/).
 
 ---
 
