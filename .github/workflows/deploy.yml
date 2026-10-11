@@ -1,4 +1,4 @@
-# Simple workflow for deploying static content to GitHub Pages
+# GitHub Actions workflow for deploying EduPulse-AI static content to GitHub Pages
 name: Deploy static content to Pages
 
 on:
@@ -6,7 +6,7 @@ on:
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Allows manual execution from the Actions tab
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -16,30 +16,63 @@ permissions:
   id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
+
+      - name: Prepare and validate site directory
+        id: prepare
+        run: |
+          # Detect actual project directory containing the landing/portal entry point
+          TARGET_DIR=""
+          if [ -f "EduPulse-AI-5eb19feb67aebaf7a17c0c6fe3cf45788c616a83/index.html" ] || [ -f "EduPulse-AI-5eb19feb67aebaf7a17c0c6fe3cf45788c616a83/Index.html" ]; then
+            TARGET_DIR="EduPulse-AI-5eb19feb67aebaf7a17c0c6fe3cf45788c616a83"
+          elif [ -f "index.html" ] || [ -f "Index.html" ]; then
+            TARGET_DIR="."
+          elif [ -f "docs/index.html" ] || [ -f "docs/Index.html" ]; then
+            TARGET_DIR="docs"
+          else
+            FOUND_FILE=$(find . -maxdepth 3 -iname "index.html" | head -n 1)
+            if [ -n "$FOUND_FILE" ]; then
+              TARGET_DIR=$(dirname "$FOUND_FILE")
+            else
+              TARGET_DIR="."
+            fi
+          fi
+
+          echo "Detected site directory: $TARGET_DIR"
+
+          # Ensure case-insensitive compatibility on Linux web servers
+          if [ -f "$TARGET_DIR/Index.html" ] && [ ! -f "$TARGET_DIR/index.html" ]; then
+            cp "$TARGET_DIR/Index.html" "$TARGET_DIR/index.html"
+          fi
+          if [ -f "$TARGET_DIR/Firebase.js" ] && [ ! -f "$TARGET_DIR/firebase.js" ]; then
+            cp "$TARGET_DIR/Firebase.js" "$TARGET_DIR/firebase.js"
+          fi
+
+          # Disable Jekyll build completely
+          touch "$TARGET_DIR/.nojekyll"
+          touch ".nojekyll"
+
+          echo "site_dir=$TARGET_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository root
-          path: '.'
+          path: ${{ steps.prepare.outputs.site_dir }}
 
       - name: Deploy to GitHub Pages
         id: deployment

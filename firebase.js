@@ -28,3 +28,4 @@ export const isConfigured = Boolean(
 export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
+export const googleProvider = provider;
