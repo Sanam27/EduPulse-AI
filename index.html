@@ -1132,6 +1132,12 @@
                         var firebase = modules[0];
                         var authSdk = modules[1];
 
+                        if (!firebase.isConfigured || !firebase.auth) {
+                            var err = new Error('Firebase Authentication is not configured. Please add your project credentials in firebase.js.');
+                            err.code = 'auth/configuration-not-found';
+                            throw err;
+                        }
+
                         return {
                             auth: firebase.auth,
                             provider: firebase.provider,
@@ -1142,6 +1148,9 @@
                                 authSdk.createUserWithEmailAndPassword,
                             updateProfile: authSdk.updateProfile
                         };
+                    }).catch(function (error) {
+                        firebaseClientPromise = null;
+                        throw error;
                     });
                 }
 
@@ -1184,7 +1193,7 @@
                     'auth/too-many-requests':
                         'Too many attempts. Please wait and try again.',
                     'auth/configuration-not-found':
-                        'Check your Firebase Authentication configuration.',
+                        'Firebase is not configured yet. Please update firebase.js with your project credentials.',
                     'auth/invalid-api-key':
                         'Your Firebase API key is invalid.'
                 };
@@ -1234,6 +1243,31 @@
                 }
             }
 
+            async function handleAuthSuccess(statusEl, user, actionName) {
+                if (!user || !user.uid) {
+                    statusEl.style.color = 'var(--error)';
+                    statusEl.textContent = 'Authentication could not be verified.';
+                    return;
+                }
+
+                var displayName = user.displayName || user.email || 'User';
+                statusEl.style.color = 'var(--ok)';
+
+                try {
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function () { controller.abort(); }, 1500);
+                    await fetch('http://localhost:8501', { mode: 'no-cors', signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    statusEl.textContent = actionName + ' successful! Redirecting to EduPulse AI Dashboard...';
+                    setTimeout(function () {
+                        window.location.href = 'http://localhost:8501';
+                    }, 800);
+                } catch (e) {
+                    statusEl.textContent = actionName + ' successful! Welcome, ' + displayName + '. (Run "streamlit run app.py" to launch the dashboard)';
+                }
+            }
+
             async function signInWithGoogle(button) {
                 var slide = button.closest('.slide');
                 var status = slide.querySelector('.status');
@@ -1263,8 +1297,7 @@
                         provider: 'google.com'
                     });
 
-                    // Redirect after successful Firebase authentication.
-                    window.location.href = 'http://localhost:8501';
+                    await handleAuthSuccess(status, user, 'Sign in');
 
                 } catch (error) {
                     status.style.color = 'var(--error)';
@@ -1328,7 +1361,7 @@
                             provider: 'password'
                         });
 
-                        window.location.href = 'http://localhost:8501';
+                        await handleAuthSuccess(status, user, 'Login');
 
                     } catch (error) {
                         status.style.color = 'var(--error)';
@@ -1404,7 +1437,7 @@
                             provider: 'password'
                         });
 
-                        window.location.href = 'http://localhost:8501';
+                        await handleAuthSuccess(status, user, 'Account creation');
 
                     } catch (error) {
                         status.style.color = 'var(--error)';

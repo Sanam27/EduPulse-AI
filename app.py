@@ -31,6 +31,160 @@ def load_css():
 
 load_css()
 
+import urllib.request
+import json
+
+# --- Firebase Client Authentication Setup ---
+FIREBASE_API_KEY = (
+    st.secrets.get("FIREBASE_API_KEY") or 
+    os.getenv("FIREBASE_API_KEY") or 
+    "AIzaSyAE7mLwzMwsm7eTE2d1LaIalhZYz2V1eso"
+)
+
+def firebase_auth_sign_in(email: str, password: str):
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
+    payload = json.dumps({
+        "email": email,
+        "password": password,
+        "returnSecureToken": True
+    }).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req) as response:
+            return True, json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        try:
+            err_data = json.loads(e.read().decode("utf-8"))
+            err_msg = err_data.get("error", {}).get("message", "INVALID_LOGIN_CREDENTIALS")
+        except Exception:
+            err_msg = "AUTHENTICATION_FAILED"
+        return False, err_msg
+    except Exception as e:
+        return False, str(e)
+
+def firebase_auth_sign_up(email: str, password: str, display_name: str = None):
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}"
+    payload = json.dumps({
+        "email": email,
+        "password": password,
+        "returnSecureToken": True
+    }).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            if display_name and "idToken" in data:
+                update_url = f"https://identitytoolkit.googleapis.com/v1/accounts:update?key={FIREBASE_API_KEY}"
+                up_payload = json.dumps({
+                    "idToken": data["idToken"],
+                    "displayName": display_name,
+                    "returnSecureToken": True
+                }).encode("utf-8")
+                up_req = urllib.request.Request(update_url, data=up_payload, headers={"Content-Type": "application/json"})
+                try:
+                    with urllib.request.urlopen(up_req) as up_res:
+                        data = json.loads(up_res.read().decode("utf-8"))
+                except Exception:
+                    pass
+            return True, data
+    except urllib.error.HTTPError as e:
+        try:
+            err_data = json.loads(e.read().decode("utf-8"))
+            err_msg = err_data.get("error", {}).get("message", "SIGNUP_FAILED")
+        except Exception:
+            err_msg = "SIGNUP_FAILED"
+        return False, err_msg
+    except Exception as e:
+        return False, str(e)
+
+def translate_firebase_error(error_code: str) -> str:
+    if "INVALID_LOGIN_CREDENTIALS" in error_code or "INVALID_PASSWORD" in error_code:
+        return "Incorrect email address or password. Please try again."
+    elif "EMAIL_NOT_FOUND" in error_code:
+        return "No account was found with this email address."
+    elif "EMAIL_EXISTS" in error_code:
+        return "An account already exists with this email address."
+    elif "TOO_MANY_ATTEMPTS_TRY_LATER" in error_code:
+        return "Too many failed attempts. Please wait and try again later."
+    elif "WEAK_PASSWORD" in error_code:
+        return "Password must be at least 6 characters long."
+    elif "INVALID_EMAIL" in error_code:
+        return "Please enter a valid email address."
+    elif "USER_DISABLED" in error_code:
+        return "This user account has been disabled."
+    elif "OPERATION_NOT_ALLOWED" in error_code:
+        return "Email/password sign-in is not enabled in your Firebase Console."
+    return f"Authentication failed: {error_code}"
+
+def render_login_page():
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("""
+        <div style="text-align: center; margin-bottom: 2rem; margin-top: 1rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
+            <h1 style="font-size: 2.2rem; font-weight: 800; color: #F0FDF4; margin: 0;">EduPulse AI</h1>
+            <div style="color: #9CB7A5; font-size: 1rem; margin-top: 0.4rem; font-weight: 500;">
+                Student Intelligence & Risk Analytics Portal
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        tab_login, tab_signup = st.tabs(["🔐 Log In", "📝 Create Account"])
+        
+        with tab_login:
+            st.markdown("##### Access your EduPulse AI workspace")
+            with st.form("login_form", clear_on_submit=False):
+                email = st.text_input("School / Work Email", placeholder="you@school.edu", key="login_email").strip()
+                password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_pw")
+                submit_login = st.form_submit_button("Log In to Dashboard", use_container_width=True)
+                
+                if submit_login:
+                    if not email or not password:
+                        st.error("Please enter both email address and password.")
+                    else:
+                        with st.spinner("Authenticating with Firebase..."):
+                            success, res = firebase_auth_sign_in(email, password)
+                            if success:
+                                st.session_state["authenticated"] = True
+                                st.session_state["user_email"] = res.get("email", email)
+                                st.session_state["user_name"] = res.get("displayName") or email.split("@")[0].capitalize()
+                                st.session_state["user_id"] = res.get("localId")
+                                st.success(f"Welcome back, {st.session_state['user_name']}!")
+                                st.rerun()
+                            else:
+                                st.error(translate_firebase_error(str(res)))
+        
+        with tab_signup:
+            st.markdown("##### Create a new advisor account")
+            with st.form("signup_form", clear_on_submit=False):
+                full_name = st.text_input("Full Name", placeholder="Aarav Sharma", key="su_name").strip()
+                email = st.text_input("School / Work Email", placeholder="you@school.edu", key="su_email").strip()
+                password = st.text_input("Password (min. 6 chars)", type="password", placeholder="Choose a secure password", key="su_pw")
+                submit_signup = st.form_submit_button("Create Account", use_container_width=True)
+                
+                if submit_signup:
+                    if not full_name or not email or not password:
+                        st.error("Please complete all fields.")
+                    elif len(password) < 6:
+                        st.error("Password must be at least 6 characters long.")
+                    else:
+                        with st.spinner("Creating Firebase account..."):
+                            success, res = firebase_auth_sign_up(email, password, display_name=full_name)
+                            if success:
+                                st.session_state["authenticated"] = True
+                                st.session_state["user_email"] = res.get("email", email)
+                                st.session_state["user_name"] = full_name
+                                st.session_state["user_id"] = res.get("localId")
+                                st.success(f"Account created successfully! Welcome, {full_name}!")
+                                st.rerun()
+                            else:
+                                st.error(translate_firebase_error(str(res)))
+
+# Check authentication state - block protected dashboard until authenticated
+if not st.session_state.get("authenticated", False):
+    render_login_page()
+    st.stop()
+
 # Helper function to apply uniform Dark Green Plotly styling
 def apply_dark_green_plotly_theme(fig):
     fig.update_layout(
@@ -68,6 +222,26 @@ RISK_COLORS = {
 st.sidebar.image("https://img.icons8.com/isometric/96/000000/graduation-cap.png", width=55)
 st.sidebar.title("EduPulse AI")
 st.sidebar.markdown("<div style='font-size:0.82rem; color:#9CB7A5; margin-top:-10px; margin-bottom:15px; font-weight:600;'>Student Intelligence Platform</div>", unsafe_allow_html=True)
+
+# User Session & Logout Control in Sidebar
+user_name = st.session_state.get("user_name", "User")
+user_email = st.session_state.get("user_email", "")
+
+st.sidebar.markdown(f"""
+<div style="background: rgba(16, 39, 28, 0.9); border: 1px solid rgba(94, 234, 160, 0.25); padding: 0.75rem; border-radius: 10px; margin-bottom: 12px;">
+    <div style="font-size: 0.72rem; color: #9CB7A5; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Authenticated Session</div>
+    <div style="color: #F0FDF4; font-weight: 700; font-size: 0.92rem; margin-top: 2px;">{user_name}</div>
+    <div style="color: #5FF2A5; font-size: 0.78rem; word-break: break-all;">{user_email}</div>
+</div>
+""", unsafe_allow_html=True)
+
+if st.sidebar.button("🚪 Log Out Session", use_container_width=True):
+    st.session_state["authenticated"] = False
+    st.session_state.pop("user_email", None)
+    st.session_state.pop("user_name", None)
+    st.session_state.pop("user_id", None)
+    st.rerun()
+
 st.sidebar.markdown("---")
 
 app_mode = st.sidebar.radio(
